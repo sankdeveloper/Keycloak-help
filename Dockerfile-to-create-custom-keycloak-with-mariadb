@@ -24,3 +24,6 @@ ENV KC_DB_URL_PORT=3306
 ENV KC_DB_USERNAME=keycloak
 ENV KC_DB_PASSWORD=admin@123
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+
+# Note that : mariadb and container of this image must be in same NETWORK. otherwise it will throw socket exception.
+# docker run -d --name mariadb --network custom-network -e MYSQL_ROOT_PASSWORD=admin@123 -e MYSQL_DATABASE=keycloak -e MYSQL_USER=keycloak -e MYSQL_PASSWORD=admin@123 -v mariadb_data:/var/lib/mysql -p 3306:3306 mariadb:10.11
