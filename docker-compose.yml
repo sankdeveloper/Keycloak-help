@@ -3,27 +3,42 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     environment:
-      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN:admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
-      - DB_VENDOR=mariadb
-      - DB_ADDR=mariadb
-      - DB_PORT=3306
-      - DB_DATABASE=keycloak
-      - DB_USER=keycloak
-      - DB_PASSWORD=admin@123
+      - KC_DB=mariadb
+      - KC_DB_URL_HOST=mariadb
+      - KC_DB_URL_DATABASE=${MYSQL_DATABASE}
+      - KC_DB_URL_PORT=3306
+      - KC_DB_USERNAME=${MYSQL_USER}
+      - KC_DB_PASSWORD=${MYSQL_PASSWORD}
     ports:
       - "8080:8080"
     entrypoint: ["/opt/keycloak/bin/kc.sh", "start-dev"]
     depends_on:
       - mariadb
+
   mariadb:
-    image: mariadb:latest
+    image: mariadb:10.11
     environment:
-      - MYSQL_ROOT_PASSWORD=admin@123
-      - MYSQL_DATABASE=keycloak
-      - MYSQL_USER=keycloak
-      - MYSQL_PASSWORD=admin@123
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     volumes:
       - mariadb_data:/var/lib/mysql
+  
+  phpMyAdmin:
+    image: phpmyadmin/phpmyadmin:5.2.1
+    depends_on:
+      - mariadb
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    ports:
+      - 7000:80
+
 volumes:
   mariadb_data:
+networks:
+  CLOVER_NETWORK:
